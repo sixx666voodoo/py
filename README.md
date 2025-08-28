@@ -1,11 +1,12 @@
 # Sample Order Site
 
-This repository contains a simple Flask application that demonstrates an order form with an order confirmation page.
-When a user submits their email address, the app generates a random code and displays it as a confirmation.
+This repository contains a tiny web application implemented with only the
+Python standard library. It presents an order form that, when submitted with an
+email address, returns a confirmation page showing a randomly generated code.
 
 ## Running the site
 
-1. Install dependencies:
+1. (Optional) install dependencies – the project currently has none:
 
    ```bash
    pip install -r requirements.txt
@@ -15,7 +16,7 @@ When a user submits their email address, the app generates a random code and dis
    ```bash
    python app.py
    ```
-3. Open http://localhost:5000 in your browser and place a sample order.
+3. Open http://localhost:8000 in your browser and place a sample order.
 
 ## Testing
 
