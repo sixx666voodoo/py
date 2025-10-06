@@ -50,3 +50,24 @@ Execute the automated tests with:
 ```bash
 pytest
 ```
+
+## Borderlands 4 Wiki Scraper
+
+The repository also includes a lightweight crawler that can download the
+complete Borderlands 4 wiki hosted on game8.co. The scraper keeps requests
+focused on the wiki by following only in-scope links, handles `robots.txt`
+directives, and writes the HTML pages to disk with a sensible directory
+structure.
+
+Run the scraper from the command line (it only relies on the Python standard
+library):
+
+```bash
+python wiki_scraper.py --output borderlands4_wiki
+```
+
+Useful options:
+
+- `--max-pages` limits the number of pages downloaded.
+- `--delay` adjusts the delay between requests (default: 1 second).
+- `--ignore-robots` disables `robots.txt` checks (use with care).
