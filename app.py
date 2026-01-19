@@ -18,6 +18,8 @@ from dataclasses import dataclass
 from statistics import mean, median
 from typing import Iterable, Iterator, List, Optional, Sequence, Tuple
 
+from repository import SideLoadRepository, parse_metadata_pairs
+
 
 @dataclass
 class AnalysisConfig:
@@ -580,6 +582,19 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
         default=AnalysisConfig.chunk_size,
         help="Frame size for streaming audio",
     )
+    parser.add_argument(
+        "--side-load-repo",
+        dest="side_load_repo",
+        help="Workspace directory used to manage side loaded files",
+    )
+    parser.add_argument(
+        "--side-load-metadata",
+        dest="side_load_metadata",
+        help=(
+            "Comma separated list of key=value pairs stored with imported files "
+            "inside the side load repository"
+        ),
+    )
     return parser.parse_args(argv)
 
 
@@ -587,8 +602,25 @@ def create_sources(args: argparse.Namespace) -> List[AudioSource]:
     sources: List[AudioSource] = []
     sample_rate = args.sample_rate
     chunk_size = args.chunk_size
+    repository: Optional[SideLoadRepository] = None
+    metadata: Optional[dict] = None
+    if args.side_load_repo:
+        repository = SideLoadRepository(args.side_load_repo)
+        if args.side_load_metadata:
+            try:
+                metadata = parse_metadata_pairs(
+                    part.strip() for part in args.side_load_metadata.split(",")
+                )
+            except ValueError as exc:
+                raise SystemExit(str(exc)) from exc
     if args.file_path:
-        sources.append(FileAudioSource(args.file_path, sample_rate, chunk_size))
+        file_path = args.file_path
+        if repository is not None:
+            try:
+                file_path = repository.resolve(file_path, metadata=metadata)
+            except FileNotFoundError as exc:
+                raise SystemExit(str(exc)) from exc
+        sources.append(FileAudioSource(file_path, sample_rate, chunk_size))
     if args.use_microphone:
         sources.append(MicrophoneAudioSource(sample_rate, chunk_size))
     if not sources:

@@ -28,6 +28,27 @@ Run the analyzer from the command line:
 python app.py --file path/to/song.wav --microphone --log bpm_log.txt
 ```
 
+### Side load repository
+
+To reuse audio assets across multiple analysis runs you can set up a side load
+repository. The repository manages imported files, assigns them stable
+identifiers and keeps optional metadata describing the origin of each file.
+
+```bash
+python app.py \
+    --file path/to/song.wav \
+    --side-load-repo ./sideloads \
+    --side-load-metadata project=SunoAI,genre=electronic
+```
+
+- If ``path/to/song.wav`` exists it will be copied into the repository and a
+  manifest entry is created. Subsequent executions can reference either the
+  original path or the generated identifier shown inside ``sideloads/manifest.json``.
+- When ``--file`` refers to an identifier the stored copy inside the repository
+  will be used automatically.
+- Metadata values are optional, but they can help to keep track of the context
+  in which each file was added.
+
 Key options:
 
 - `--file`: optional path to a wave file that should be analysed.

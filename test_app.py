@@ -15,6 +15,7 @@ from app import (
     MicrophoneAudioSource,
     generate_click_track,
 )
+from repository import SideLoadRepository
 
 
 def write_wave(path: Path, audio: Sequence[float], sample_rate: int) -> None:
@@ -108,3 +109,24 @@ def test_microphone_variations_are_logged(tmp_path: Path) -> None:
     last_variation = variations[-1].split("\t")
     observed_bpm = float(last_variation[2])
     assert observed_bpm > 110.0
+
+
+def test_side_load_repository_imports_and_persists(tmp_path: Path) -> None:
+    repo_path = tmp_path / "workspace"
+    repo = SideLoadRepository(repo_path)
+    source_file = tmp_path / "sample.wav"
+    source_file.write_bytes(b"wave-data")
+    entry = repo.store_file(source_file, metadata={"project": "suno"})
+    assert (repo.files_dir / entry.stored_name).is_file()
+
+    resolved_path = repo.resolve(entry.identifier)
+    assert Path(resolved_path).read_bytes() == b"wave-data"
+
+    second_file = tmp_path / "second.wav"
+    second_file.write_bytes(b"another")
+    resolved_second = repo.resolve(str(second_file))
+    assert Path(resolved_second).read_bytes() == b"another"
+
+    repo_reloaded = SideLoadRepository(repo_path)
+    identifiers = {item.identifier for item in repo_reloaded.list_entries()}
+    assert entry.identifier in identifiers
