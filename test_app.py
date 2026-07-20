@@ -13,6 +13,7 @@ from app import (
     AudioAnalyzer,
     FileAudioSource,
     MicrophoneAudioSource,
+    create_sources,
     generate_click_track,
 )
 
@@ -80,6 +81,42 @@ def test_file_source_detects_expected_bpm(tmp_path: Path) -> None:
     baseline_line = next(line for line in lines if line.startswith("BASELINE"))
     baseline_bpm = float(baseline_line.split("\t")[2])
     assert baseline_bpm == pytest.approx(target_bpm, abs=2.0)
+
+
+def test_create_sources_accepts_directory_of_wave_files(tmp_path: Path) -> None:
+    sample_rate = 44_100
+    chunk_size = 4_096
+    audio_dir = tmp_path / "audio"
+    nested_dir = audio_dir / "nested"
+    nested_dir.mkdir(parents=True)
+    write_wave(
+        audio_dir / "first.wav",
+        generate_click_track(90.0, 1.0, sample_rate),
+        sample_rate,
+    )
+    write_wave(
+        nested_dir / "second.wave",
+        generate_click_track(110.0, 1.0, sample_rate),
+        sample_rate,
+    )
+    (audio_dir / "notes.txt").write_text("ignore me", encoding="utf-8")
+
+    args = type(
+        "Args",
+        (),
+        {
+            "file_path": str(audio_dir),
+            "sample_rate": sample_rate,
+            "chunk_size": chunk_size,
+            "use_microphone": False,
+        },
+    )()
+
+    sources = create_sources(args)
+
+    assert len(sources) == 2
+    for source in sources:
+        source.close()
 
 
 def test_microphone_variations_are_logged(tmp_path: Path) -> None:
