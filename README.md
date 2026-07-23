@@ -30,7 +30,7 @@ python app.py --file path/to/song.wav --microphone --log bpm_log.txt
 
 Key options:
 
-- `--file`: optional path to a wave file that should be analysed.
+- `--file`: optional path to a wave file, or a directory of `.wav`/`.wave` files, that should be analysed.
 - `--microphone`: enables microphone capture (requires the `sounddevice`
   package and audio hardware).
 - `--log`: location of the tempo log (defaults to `bpm_log.txt`).

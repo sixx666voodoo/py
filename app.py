@@ -74,7 +74,7 @@ class FileAudioSource(AudioSource):
         if self._position >= len(self._data):
             return None
         end = min(self._position + self.chunk_size, len(self._data))
-        chunk = self._data[self._position:end]
+        chunk = self._data[self._position : end]
         self._position = end
         if len(chunk) < self.chunk_size:
             chunk = chunk + [0.0] * (self.chunk_size - len(chunk))
@@ -165,7 +165,9 @@ class BpmLogWriter:
 
     def log_measurement(self, timestamp: float, bpm: float, reference: float) -> None:
         delta = bpm - reference
-        label = "VARIATION" if abs(delta) >= self._variation_threshold else "MEASUREMENT"
+        label = (
+            "VARIATION" if abs(delta) >= self._variation_threshold else "MEASUREMENT"
+        )
         self._file.write(
             f"{label}\t{timestamp:.2f}\t{bpm:.2f}\t{reference:.2f}\t{delta:+.2f}\n"
         )
@@ -208,7 +210,10 @@ class TempoRegressor:
 
     def _train_model(self) -> List[float]:
         samples = 40
-        bpms = [self.min_bpm + i * (self.max_bpm - self.min_bpm) / (samples - 1) for i in range(samples)]
+        bpms = [
+            self.min_bpm + i * (self.max_bpm - self.min_bpm) / (samples - 1)
+            for i in range(samples)
+        ]
         feature_rows: List[List[float]] = []
         targets: List[float] = []
         for bpm in bpms:
@@ -250,7 +255,9 @@ class TempoRegressor:
         normalize(envelope)
         return envelope
 
-    def _extract_features(self, envelope: List[float]) -> Optional[Tuple[float, List[float]]]:
+    def _extract_features(
+        self, envelope: List[float]
+    ) -> Optional[Tuple[float, List[float]]]:
         if not envelope:
             return None
         frame_rate = self.sample_rate / self.hop_size
@@ -268,13 +275,13 @@ class TempoRegressor:
             intervals = [peaks[i + 1] - peaks[i] for i in range(len(peaks) - 1)]
             lag_frames = max(1, int(round(median(intervals))))
         best_value = autocorr[min(lag_frames, len(autocorr) - 1)]
-        secondary_index, secondary_value = secondary_peak(autocorr, best_index, min_lag, max_lag)
+        secondary_index, secondary_value = secondary_peak(
+            autocorr, best_index, min_lag, max_lag
+        )
         lag_seconds = lag_frames / frame_rate
         secondary_seconds = secondary_index / frame_rate
         base_bpm = 60.0 / lag_seconds if lag_seconds > 0 else 0.0
-        secondary_ratio = (
-            (secondary_value / best_value) if best_value > 0 else 0.0
-        )
+        secondary_ratio = (secondary_value / best_value) if best_value > 0 else 0.0
         features = [
             best_value,
             secondary_value,
@@ -317,7 +324,8 @@ class AudioAnalyzer:
                 self._maybe_log_measurement()
                 if (
                     max_duration is not None
-                    and self._processed_samples / self.config.sample_rate >= max_duration
+                    and self._processed_samples / self.config.sample_rate
+                    >= max_duration
                 ):
                     break
         finally:
@@ -508,7 +516,9 @@ def detect_peaks(envelope: List[float]) -> List[int]:
     return peaks
 
 
-def resample_audio(audio: List[float], original_rate: int, target_rate: int) -> List[float]:
+def resample_audio(
+    audio: List[float], original_rate: int, target_rate: int
+) -> List[float]:
     if original_rate == target_rate or not audio:
         return list(audio)
     duration = len(audio) / float(original_rate)
@@ -583,16 +593,51 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+SUPPORTED_AUDIO_EXTENSIONS = {".wav", ".wave"}
+
+
+def discover_audio_files(path: str) -> List[str]:
+    """Return supported audio files for a file or directory path.
+
+    Directory inputs are scanned recursively and returned in sorted order so CLI
+    runs are deterministic across platforms.
+    """
+
+    if not os.path.exists(path):
+        raise FileNotFoundError(path)
+    if os.path.isfile(path):
+        extension = os.path.splitext(path)[1].lower()
+        if extension not in SUPPORTED_AUDIO_EXTENSIONS:
+            raise ValueError(
+                f"Unsupported audio file extension: {extension or '<none>'}"
+            )
+        return [path]
+
+    matches: List[str] = []
+    for root, dirnames, filenames in os.walk(path):
+        dirnames.sort()
+        for filename in sorted(filenames):
+            extension = os.path.splitext(filename)[1].lower()
+            if extension in SUPPORTED_AUDIO_EXTENSIONS:
+                matches.append(os.path.join(root, filename))
+    if not matches:
+        raise ValueError(f"No supported audio files found in directory: {path}")
+    return matches
+
+
 def create_sources(args: argparse.Namespace) -> List[AudioSource]:
     sources: List[AudioSource] = []
     sample_rate = args.sample_rate
     chunk_size = args.chunk_size
     if args.file_path:
-        sources.append(FileAudioSource(args.file_path, sample_rate, chunk_size))
+        for file_path in discover_audio_files(args.file_path):
+            sources.append(FileAudioSource(file_path, sample_rate, chunk_size))
     if args.use_microphone:
         sources.append(MicrophoneAudioSource(sample_rate, chunk_size))
     if not sources:
-        raise SystemExit("No audio sources selected. Specify --file and/or --microphone.")
+        raise SystemExit(
+            "No audio sources selected. Specify --file and/or --microphone."
+        )
     return sources
 
 
