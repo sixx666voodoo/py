@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Forza Horizon 6 Companion Settings</title>
+    <style>
+      body {
+        background: #101014;
+        color: #f5f5f7;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        margin: 0;
+        padding: 24px;
+      }
+
+      .card {
+        background: #1c1c22;
+        border: 1px solid #31313a;
+        border-radius: 16px;
+        max-width: 720px;
+        padding: 24px;
+      }
+
+      h1 {
+        margin-top: 0;
+      }
+
+      label {
+        display: block;
+        font-weight: 700;
+        margin-top: 20px;
+      }
+
+      select,
+      input {
+        background: #2a2a32;
+        border: 1px solid #4b4b56;
+        border-radius: 10px;
+        color: #ffffff;
+        font: inherit;
+        margin-top: 8px;
+        padding: 10px 12px;
+        width: 100%;
+      }
+
+      p {
+        color: #c7c7d1;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <h1>Forza Horizon 6 Companion</h1>
+      <p>
+        Pick a startup page for driving, racing, drifting, or photo sessions.
+        Telemetry settings are placeholders until the final Forza Horizon 6 data
+        output behavior is confirmed.
+      </p>
+
+      <label for="startup-mode">Startup page</label>
+      <select id="startup-mode" name="startup-mode">
+        <option value="cruise">Cruise shortcuts</option>
+        <option value="race">Race controls</option>
+        <option value="drift">Drift / touge controls</option>
+        <option value="photo">Photo and creator tools</option>
+      </select>
+
+      <label for="telemetry-port">Telemetry UDP port</label>
+      <input id="telemetry-port" name="telemetry-port" type="number" min="1" max="65535" value="5300">
+    </main>
+  </body>
+</html>

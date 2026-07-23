@@ -1,0 +1,47 @@
+{
+  "id": "com.example.flexbar.forza-horizon-6",
+  "name": "Forza Horizon 6 Companion",
+  "version": "0.1.0",
+  "author": "Codex",
+  "description": "Starter Flexbar companion for Forza Horizon 6 with driving, racing, drifting, photo, and telemetry pages.",
+  "repository": "https://example.com/flexbar-forza-horizon-6-plugin",
+  "backend": "backend/index.js",
+  "configPage": "ui/config.html",
+  "keyLibrary": [
+    {
+      "id": "mode.cruise",
+      "name": "Cruise Mode",
+      "category": "Forza Horizon 6",
+      "type": "default",
+      "icon": "resources/cruise.svg"
+    },
+    {
+      "id": "mode.race",
+      "name": "Race Mode",
+      "category": "Forza Horizon 6",
+      "type": "default",
+      "icon": "resources/race.svg"
+    },
+    {
+      "id": "mode.drift",
+      "name": "Drift Mode",
+      "category": "Forza Horizon 6",
+      "type": "default",
+      "icon": "resources/drift.svg"
+    },
+    {
+      "id": "mode.photo",
+      "name": "Photo Mode",
+      "category": "Forza Horizon 6",
+      "type": "default",
+      "icon": "resources/photo.svg"
+    },
+    {
+      "id": "telemetry.hud",
+      "name": "Telemetry HUD",
+      "category": "Forza Horizon 6",
+      "type": "dynamic",
+      "icon": "resources/telemetry.svg"
+    }
+  ]
+}
