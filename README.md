@@ -50,3 +50,13 @@ Execute the automated tests with:
 ```bash
 pytest
 ```
+
+## Generate the NWOBHM Drum MIDI Track
+
+A standalone generator script is available to export the 32-bar 145 BPM drum arrangement as a MIDI file:
+
+```bash
+python generate_nwobhm_drum_midi.py
+```
+
+By default this writes `nwobhm_145bpm_drum_track.mid` to the current directory.
